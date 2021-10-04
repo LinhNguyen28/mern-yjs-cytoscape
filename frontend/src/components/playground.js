@@ -18,6 +18,7 @@ export default class Playground extends Component {
       elements: [],
       nodeId: 1,
       textContent: "Disconnect",
+      sourceStart: -1,
    }
 
    setUpListeners = () => {
@@ -34,10 +35,23 @@ export default class Playground extends Component {
          this.updateElementsArr();
       });
 
-      this.cy.on("drag", "node", event => {
-         console.log(event);
-         console.log("dragfree at");
-         console.log(event.position);
+      this.cy.on("cxttapend", event => {
+         console.log("tap end");
+         this.cy.add({
+            data: {
+               id: `${this.state.nodeId}`,
+               label: `Node ${this.state.nodeId}`
+            },
+            position: { x: event.position.x, y: event.position.y }
+         });
+         this.cy.add({
+            data: {
+               source: event.target.data()["id"],
+               target: this.state.nodeId
+            },
+            label: `Edge from ${event.target.data()["id"]} to ${this.state.nodeId}`
+         });
+         this.updateElementsArr();
       });
    }
 
