@@ -15,10 +15,9 @@ export default class Playground extends Component {
    state = {
       w: 0,
       h: 0,
-      elements: [],
       nodeId: 1,
-      textContent: "Disconnect",
-      sourceStart: -1,
+      elements: [],
+      textContent: "Disconnect"
    }
 
    setUpListeners = () => {
@@ -26,20 +25,17 @@ export default class Playground extends Component {
          if (event.target === this.cy) {
             this.cy.add({
                data: {
-                  id: `${this.state.nodeId}`,
                   label: `Node ${this.state.nodeId}`
                },
                position: { x: event.position.x, y: event.position.y }
             });
          }
-         this.updateElementsArr();
+         this.updateRemote();
       });
 
-      this.cy.on("cxttapend", event => {
-         console.log("tap end");
-         this.cy.add({
+      this.cy.on("cxttapend", "node", event => {
+         let node = this.cy.add({
             data: {
-               id: `${this.state.nodeId}`,
                label: `Node ${this.state.nodeId}`
             },
             position: { x: event.position.x, y: event.position.y }
@@ -47,12 +43,13 @@ export default class Playground extends Component {
          this.cy.add({
             data: {
                source: event.target.data()["id"],
-               target: this.state.nodeId
-            },
-            label: `Edge from ${event.target.data()["id"]} to ${this.state.nodeId}`
+               target: node.data()["id"]
+            }
          });
-         this.updateElementsArr();
+         this.updateRemote();
       });
+      
+      this.cy.on("dragfreeon", this.updateRemote);
    }
 
    componentDidMount = () => {
@@ -72,7 +69,7 @@ export default class Playground extends Component {
       });
    }
 
-   updateElementsArr = () => {
+   updateRemote = () => {
       let elements = this.cy.json(true)["elements"];
       console.log(elements);
       this.elementsArr.delete(0, this.elementsArr.length);
@@ -105,6 +102,7 @@ export default class Playground extends Component {
             onClick={this.clear}>
                Clear
          </button>
+         <p id="userTrack"></p>
          <CytoscapeComponent
             elements={this.state.elements}
             style={{ width: this.state.w, height: this.state.h, margin: '0px', padding: '0px' }}
