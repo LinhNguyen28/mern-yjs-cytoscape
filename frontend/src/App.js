@@ -1,12 +1,20 @@
 import './App.css';
 import Playground from './components/playground';
+import React, { Component } from 'react';
+import {Container} from "react-bootstrap";
+import NavBar from './components/navbar'
 
-function App() {
-  return (
-    <div className="App">
-      <Playground />
-    </div>
-  );
+class App extends Component {
+  render() { 
+    return (
+      <React.Fragment>
+        <NavBar />
+        <Container className="mt-3" fluid>
+          <Playground />
+        </Container>
+      </React.Fragment>
+    );
+  }
 }
 
 export default App;

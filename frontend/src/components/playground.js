@@ -2,6 +2,11 @@ import React, { Component } from "react";
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
 import CytoscapeComponent from 'react-cytoscapejs';
+import Button from 'react-bootstrap/Button';
+import popper from "cytoscape-popper";
+import cytoscape from "cytoscape";
+
+cytoscape.use(popper);
 
 export default class Playground extends Component {
    ydoc = new Y.Doc();
@@ -50,6 +55,30 @@ export default class Playground extends Component {
       });
       
       this.cy.on("dragfreeon", this.updateRemote);
+
+      let tips = document.createElement("div"); 
+
+      this.cy.on("mouseover", 'node', event => {
+         let target = event.target;
+         target.popperref = event.target.popper({
+           content: () => {
+             tips.innerHTML = event.target.data("label");
+             tips.style =
+               "background-color: black;color: #fff;text-align: left; padding: 0 5px;border-radius: 6px";
+             tips.className = "tooltiptext";
+             document.body.appendChild(tips);
+             return tips;
+           },
+           popper: {
+             placement: "top-start",
+             removeOnDestroy: true
+           }
+         });
+       });
+      this.cy.on("mouseout", "node", (_) => {
+         document.body.removeChild(tips);
+       });
+
    }
 
    componentDidMount = () => {
@@ -92,16 +121,18 @@ export default class Playground extends Component {
 
    render() {
       return (<div>
-         <button type="button" 
+         <Button
+            className="btn-primary"
             id="y-connect-btn" 
             onClick={this.connect}>
                {this.state.textContent}
-         </button>
-         <button type="button" 
+         </Button>
+         <Button 
+            className="btn-warning ml-3"
             id="clear-btn" 
             onClick={this.clear}>
                Clear
-         </button>
+         </Button>
          <p id="userTrack"></p>
          <CytoscapeComponent
             elements={this.state.elements}
